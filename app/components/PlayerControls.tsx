@@ -5,17 +5,17 @@ export default function PlayerControls() {
     <div className="flex items-center gap-8">
       <Button
         isIconOnly
-        className="bg-white/80 hover:bg-white shadow-md hover:shadow-lg rounded-full w-12 h-12 flex items-center justify-center transition-all hover:scale-105"
+        className="bg-gray-100 hover:bg-gray-200 shadow-sm hover:shadow rounded-full w-12 h-12 flex items-center justify-center transition-all hover:scale-105"
         aria-label="Previous"
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M15 18L9 12L15 6" stroke="#6366F1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M15 18L9 12L15 6" stroke="#4B5563" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </Button>
       
       <Button
         isIconOnly
-        className="bg-gradient-to-br from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl rounded-full w-16 h-16 flex items-center justify-center transition-all hover:scale-105"
+        className="bg-gradient-to-r from-blue-500 to-teal-400 hover:from-blue-600 hover:to-teal-500 text-white shadow-md hover:shadow-lg rounded-full w-16 h-16 flex items-center justify-center transition-all hover:scale-105"
         aria-label="Play/Pause"
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -26,11 +26,11 @@ export default function PlayerControls() {
       
       <Button
         isIconOnly
-        className="bg-white/80 hover:bg-white shadow-md hover:shadow-lg rounded-full w-12 h-12 flex items-center justify-center transition-all hover:scale-105"
+        className="bg-gray-100 hover:bg-gray-200 shadow-sm hover:shadow rounded-full w-12 h-12 flex items-center justify-center transition-all hover:scale-105"
         aria-label="Next"
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M9 6L15 12L9 18" stroke="#6366F1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M9 6L15 12L9 18" stroke="#4B5563" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </Button>
     </div>
