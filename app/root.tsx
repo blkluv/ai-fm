@@ -3,6 +3,9 @@ import type {LinksFunction} from "@remix-run/node";
 
 import "./tailwind.css";
 import {HeroUIProvider} from "@heroui/react";
+import {QueryClientProvider} from "@tanstack/react-query";
+import {queryClient} from "~/query-client";
+import {Toaster} from "sonner";
 
 export const links: LinksFunction = () => [
   {rel: "preconnect", href: "https://fonts.googleapis.com"},
@@ -28,9 +31,12 @@ export function Layout({children}: { children: React.ReactNode }) {
     </head>
     <body>
     <HeroUIProvider>
-      {children}
-      <ScrollRestoration/>
-      <Scripts/>
+      <QueryClientProvider client={queryClient}>
+        <Toaster/>
+        {children}
+        <ScrollRestoration/>
+        <Scripts/>
+      </QueryClientProvider>
     </HeroUIProvider>
     </body>
     </html>

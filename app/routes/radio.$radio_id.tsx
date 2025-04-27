@@ -6,8 +6,12 @@ export default function Radio() {
   const {radio_id: radioId} = useParams();
 
   useEffect(() => {
-    console.log(radioId);
+    console.log("radioId:", radioId);
   }, [radioId]);
+
+  if (!radioId) {
+    return <div>Radio ID not found</div>
+  }
 
   return (<div className="flex h-screen items-center justify-center bg-slate-100">
     {/* Matte texture overlay */}
@@ -20,6 +24,6 @@ export default function Radio() {
     <div
       className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-gradient-to-tr from-purple-200/20 to-transparent rounded-full blur-3xl"></div>
 
-    <MusicPlayer/>
+    <MusicPlayer radioId={radioId}/>
   </div>)
 }

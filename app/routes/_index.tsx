@@ -13,7 +13,7 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6">
       
-      <div className="max-w-5xl w-full flex flex-col items-center gap-12">
+      <div className="max-w-5xl w-full flex flex-col items-center gap-12 mt-20">
         <div className="text-center">
           <h1 className="text-6xl md:text-7xl font-bold text-gray-800 mb-4">
             Non-stop pop FM
@@ -23,7 +23,7 @@ export default function Index() {
           </p>
         </div>
 
-        <Card className="w-full max-w-md shadow-md">
+        <Card className="w-full max-w-md">
           <CardHeader className="flex flex-col gap-2">
             <h2 className="text-2xl font-bold">AI-Powered Radio Experience</h2>
             <p className="text-gray-600">Real songs. AI moderators. Non-stop entertainment.</p>
