@@ -1,6 +1,6 @@
 import {useParams} from "@remix-run/react";
-import MusicPlayer from "~/components/MusicPlayer";
 import {useEffect} from "react";
+import {RadioPlayer} from "~/components/RadioPlayer";
 
 export default function Radio() {
   const {radio_id: radioId} = useParams();
@@ -24,6 +24,6 @@ export default function Radio() {
     <div
       className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-gradient-to-tr from-purple-200/20 to-transparent rounded-full blur-3xl"></div>
 
-    <MusicPlayer radioId={radioId}/>
+    <RadioPlayer radioId={radioId}/>
   </div>)
 }
