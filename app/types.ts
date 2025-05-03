@@ -1,20 +1,19 @@
-export interface RadioState {
+export type RadioState = {
   radioId: string;
   radioTitle: string;
   radioDescription?: string;
   block: {
     id: string;
-    type: "song" | "sweeper" | "voiceover";
+    type: "song" | "sweeper" | "voiceover"; // TODO: Remove sweeper
     position: number;
     title: string;
-    streamUrl: string;
+    streamUrl: string; // URL to stream the audio for this block
   };
   totalBlocks: number;
   hasNext: boolean;
   hasPrev: boolean;
-  playState: "loading" | "playing" | "paused" | "stopped";
-  loadingProgress?: {
+  status: {
     status: "downloading" | "generating" | "ready";
-    progress?: number;
+    progress?: number; // 0-100 percentage if available
   };
-}
+};

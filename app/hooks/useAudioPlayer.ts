@@ -61,8 +61,8 @@ export const useAudioPlayer = (radioState: RadioState | null) => {
           : `http://localhost:5000${newUrl}`;
 
         // If we were playing before, continue playing with new source
-        if (isCurrentlyPlaying || radioState.playState ===
-          'playing') {
+        if (isCurrentlyPlaying /*|| radioState.playState ===
+         'playing'*/) {
           audioRef.current.play().catch(err => {
             console.error('Failed to play audio:', err);
             setError('Failed to play audio');
@@ -73,7 +73,7 @@ export const useAudioPlayer = (radioState: RadioState | null) => {
     }
 
     // Handle play state from server
-    if (radioState.playState === 'playing' &&
+    /*if (radioState.playState === 'playing' &&
       !isCurrentlyPlaying) {
       audioRef.current.play().catch(err => {
         console.error('Failed to play audio:', err);
@@ -90,7 +90,7 @@ export const useAudioPlayer = (radioState: RadioState | null) => {
       if (!audioRef.current.paused) {
         audioRef.current.pause();
       }
-    }
+    }*/
   }, [radioState]);
 
   // Play/pause controls

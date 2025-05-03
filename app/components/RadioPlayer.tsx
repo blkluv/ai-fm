@@ -27,10 +27,7 @@ export const RadioPlayer: React.FC<RadioPlayerProps> = ({
   } = useAudioPlayer(radioState);
 
   // Show loading state when block is being prepared
-  const isBlockLoading = radioState?.playState === 'loading'
-    ||
-    radioState?.loadingProgress?.status === 'downloading' ||
-    radioState?.loadingProgress?.status === 'generating';
+  const isBlockLoading = radioState?.status.status === "downloading" || radioState?.status.status === "generating";
 
   return (
     <Card className="w-full max-w-md mx-auto shadow-lg">
@@ -76,17 +73,17 @@ export const RadioPlayer: React.FC<RadioPlayerProps> = ({
                 <div className="flex items-center gap-2">
                   <Spinner size="sm"/>
                   <span className="text-sm">
-                    {radioState.loadingProgress?.status === 'downloading'
+                    {radioState.status?.status === 'downloading'
                       ? 'Downloading audio...'
-                      : radioState.loadingProgress?.status === 'generating'
+                      : radioState.status?.status === 'generating'
                         ? 'Generating voiceover...'
                         : 'Preparing audio...'}
                   </span>
                 </div>
 
-                {radioState.loadingProgress?.progress !== undefined && (
+                {radioState.status?.progress !== undefined && (
                   <Progress
-                    value={radioState.loadingProgress.progress}
+                    value={radioState.status.progress}
                     color="primary"
                     size="sm"
                     className="mt-1"
