@@ -1,5 +1,5 @@
 // components/RadioPlayer.tsx
-import React from 'react';
+import React, {useCallback} from 'react';
 import {useRadioWebSocket} from '~/hooks/useRadioWebSocket';
 import {useAudioPlayer} from '~/hooks/useAudioPlayer';
 import {Button, Card, CardBody, CardHeader, Divider, Progress, Spinner} from "@heroui/react";
@@ -19,12 +19,18 @@ export const RadioPlayer: React.FC<RadioPlayerProps> = ({
     skipPrevious
   } = useRadioWebSocket(radioId);
 
+  // Define a wrapped skipNext function with logging
+  const handleSkipNext = useCallback(() => {
+    console.log("Skip next triggered from RadioPlayer");
+    skipNext();
+  }, [skipNext]);
+
   const {
     isPlaying,
     isLoading,
     error: audioError,
     togglePlay
-  } = useAudioPlayer(radioState);
+  } = useAudioPlayer(radioState, handleSkipNext);
 
   // Show loading state when block is being prepared
   const isBlockLoading = radioState?.status.status === "downloading" || radioState?.status.status === "generating";
@@ -95,7 +101,7 @@ export const RadioPlayer: React.FC<RadioPlayerProps> = ({
             {/* Player controls */}
             <div className="flex items-center justify-between gap-2 mt-2">
               <Button
-                onClick={skipPrevious}
+                onPress={skipPrevious}
                 isDisabled={!radioState.hasPrev || isBlockLoading}
                 variant="flat"
                 color="primary"
@@ -106,7 +112,7 @@ export const RadioPlayer: React.FC<RadioPlayerProps> = ({
               </Button>
 
               <Button
-                onClick={togglePlay}
+                onPress={togglePlay}
                 isDisabled={isBlockLoading}
                 color="primary"
                 variant="solid"
@@ -117,7 +123,10 @@ export const RadioPlayer: React.FC<RadioPlayerProps> = ({
               </Button>
 
               <Button
-                onClick={skipNext}
+                onPress={() => {
+                  console.log("Next button clicked manually");
+                  skipNext();
+                }}
                 isDisabled={!radioState.hasNext || isBlockLoading}
                 variant="flat"
                 color="primary"
