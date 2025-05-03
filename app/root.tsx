@@ -4,7 +4,7 @@ import type {LinksFunction} from "@remix-run/node";
 import "./tailwind.css";
 import {HeroUIProvider} from "@heroui/react";
 import {QueryClientProvider} from "@tanstack/react-query";
-import {queryClient} from "~/query-client";
+import {queryClient} from "~/providers/query-client";
 import {Toaster} from "sonner";
 
 export const links: LinksFunction = () => [

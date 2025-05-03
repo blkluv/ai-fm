@@ -1,6 +1,7 @@
 import {useMutation} from "@tanstack/react-query";
 import {toast} from "sonner";
 import {constants} from "~/constants";
+import {api} from "~/providers/api";
 
 export function useMusicPlayerActions(radioId: string) {
   const skipNextMutation = useMutation({
@@ -10,9 +11,7 @@ export function useMusicPlayerActions(radioId: string) {
       toast.error("Error skipping to next track");
     },
     mutationFn: async () => {
-      return await fetch(`${constants.baseApiUrl}/radios/${radioId}/next`, {
-        method: "POST",
-      });
+      return await api.post(`/radios/${radioId}/next`);
     },
   });
 
@@ -23,9 +22,7 @@ export function useMusicPlayerActions(radioId: string) {
       toast.error("Error skipping to previous track");
     },
     mutationFn: async () => {
-      return await fetch(`${constants.baseApiUrl}/radios/${radioId}/previous`, {
-        method: "POST",
-      });
+      return await api.post(`/radios/${radioId}/previous`);
     },
   });
 
@@ -36,9 +33,7 @@ export function useMusicPlayerActions(radioId: string) {
       toast.error("Error toggling play/pause");
     },
     mutationFn: async () => {
-      return await fetch(`${constants.baseApiUrl}/radios/${radioId}/toggle-play`, {
-        method: "POST",
-      });
+      return await api.post(`/radios/${radioId}/toggle-play`);
     },
   });
 

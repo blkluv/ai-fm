@@ -2,15 +2,43 @@ import {Card, CardBody, CardHeader} from "@heroui/react";
 import PlayerControls from "./PlayerControls";
 import PlayerAvatar from "./PlayerAvatar";
 import {useMusicPlayerActions} from "~/hooks/use-music-player-actions.hook";
+import {useEffect, useState} from "react";
 
 export default function MusicPlayer(props: { radioId: string }) {
   const {radioId} = props;
   const metadata = {
     title: "Some Radio Title",
     block: "Some Block ID",
-    playing: true,
   }
+  // TODO: WS
   const actions = useMusicPlayerActions(radioId);
+
+  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  async function startIt() {
+    if (audio) {
+      audio.pause();
+      setAudio(null);
+      setIsPlaying(false);
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:5000/stream");
+      if (response.ok) {
+        const audioStream = new Audio(response.url);
+        audioStream.play();
+        setAudio(audioStream);
+        setIsPlaying(true);
+      } else {
+        console.error("Failed to start audio stream");
+      }
+    } catch (error) {
+      console.error("Error fetching audio stream:", error);
+    }
+  }
+
 
   function handleNext() {
     console.log("next");
@@ -23,6 +51,7 @@ export default function MusicPlayer(props: { radioId: string }) {
   }
 
   function handleTooglePlay() {
+    startIt();
     console.log("toggle play");
     actions.togglePlayMutation.mutate();
   }
@@ -41,7 +70,7 @@ export default function MusicPlayer(props: { radioId: string }) {
       <CardBody className="flex flex-col items-center gap-12 py-10 relative z-10">
         <PlayerAvatar/>
         <PlayerControls onNext={handleNext} onPrevious={handlePrevious} onTogglePlay={handleTooglePlay}
-                        playing={metadata.playing}/>
+                        playing={isPlaying}/>
       </CardBody>
     </Card>
   );
