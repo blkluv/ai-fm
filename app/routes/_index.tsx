@@ -4,7 +4,7 @@ import {Button, Card, CardBody, CardFooter, CardHeader} from "@heroui/react";
 
 export const meta: MetaFunction = () => {
   return [
-    {title: "Non-stop pop FM"},
+    {title: "AI FM"},
     {name: "description", content: "AI-generated radio with real songs and AI moderator voiceovers"},
   ];
 };

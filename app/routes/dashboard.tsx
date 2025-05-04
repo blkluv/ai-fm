@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "@remix-run/react";
+import { FaPlay } from "react-icons/fa6";
 import { useQuery } from "@tanstack/react-query";
 import { 
   Button, 
@@ -180,7 +181,7 @@ export default function Dashboard() {
                       isIconOnly
                       onPress={() => handleRadioClick(radio.id)}
                     >
-                      ▶️
+                      <FaPlay />
                     </Button>
                   </Tooltip>
                 </CardFooter>

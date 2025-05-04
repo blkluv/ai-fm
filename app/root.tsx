@@ -33,7 +33,9 @@ export function Layout({children}: { children: React.ReactNode }) {
     <HeroUIProvider>
       <QueryClientProvider client={queryClient}>
         <Toaster/>
-        {children}
+        <div className="text-foreground bg-background">
+          {children}
+        </div>
         <ScrollRestoration/>
         <Scripts/>
       </QueryClientProvider>
