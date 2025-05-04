@@ -1,6 +1,7 @@
 // hooks/useRadioWebSocket.ts
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {RadioState} from '~/types';
+import {constants} from "~/constants";
 
 export const useRadioWebSocket = (radioId: string) => {
   const [radioState, setRadioState] = useState<RadioState |
@@ -24,7 +25,7 @@ export const useRadioWebSocket = (radioId: string) => {
 
     try {
       // Connect to the backend server (localhost:5000)
-      const wsUrl = `ws://localhost:5000/ws/radio/${radioId}`;
+      const wsUrl = `${constants.baseApiWsUrl}/ws/radio/${radioId}`;
       const ws = new WebSocket(wsUrl);
 
       ws.onopen = () => {

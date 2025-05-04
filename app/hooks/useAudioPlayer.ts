@@ -1,5 +1,6 @@
 // hooks/useAudioPlayer.ts
 import {useEffect, useRef, useState} from 'react';
+import {constants} from '~/constants';
 import {RadioState} from '~/types';
 
 // Constants for error handling
@@ -7,7 +8,7 @@ const ERROR_TIMEOUT_MS = 8000; // 8 seconds to wait before skipping
 const MAX_RETRY_ATTEMPTS = 2;
 
 export const useAudioPlayer = (
-  radioState: RadioState | null, 
+  radioState: RadioState | null,
   skipNext?: () => void
 ) => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -31,7 +32,7 @@ export const useAudioPlayer = (
   const handleAutoSkip = () => {
     console.log("Auto-skipping due to loading timeout or error");
     clearLoadTimeout();
-    
+
     if (skipNext && radioState?.hasNext !== false) {
       setError('Track failed to load - skipping to next track');
       autoPlayAfterSkipRef.current = true;
@@ -72,7 +73,7 @@ export const useAudioPlayer = (
         console.log("Error message:", audioRef.current?.error?.message);
         setError('Failed to play audio');
         setIsLoading(false);
-        
+
         // If we've tried too many times, skip to the next track
         if (retryAttemptsRef.current >= MAX_RETRY_ATTEMPTS) {
           console.log(`Failed after ${retryAttemptsRef.current} attempts, skipping track`);
@@ -80,7 +81,7 @@ export const useAudioPlayer = (
         } else {
           retryAttemptsRef.current++;
           console.log(`Retry attempt ${retryAttemptsRef.current} of ${MAX_RETRY_ATTEMPTS}`);
-          
+
           // Set timeout for this retry attempt
           clearLoadTimeout();
           loadTimeoutRef.current = setTimeout(handleAutoSkip, ERROR_TIMEOUT_MS);
@@ -89,13 +90,13 @@ export const useAudioPlayer = (
       audioRef.current.onended = () => {
         console.log("Audio ended event triggered");
         setIsPlaying(false);
-        
+
         // Automatically play the next track if available
         console.log("Can skip next?", {
           skipNextExists: !!skipNext,
           hasNext: radioState?.hasNext
         });
-        
+
         // Check if skipNext exists and hasNext is not explicitly false
         // (handles undefined case which means we just don't know yet)
         if (skipNext && radioState?.hasNext !== false) {
@@ -118,21 +119,21 @@ export const useAudioPlayer = (
   // Update audio source when stream URL changes
   useEffect(() => {
     if (!radioState || !audioRef.current) return;
-    
+
     // Check if this is a new track
     const isNewTrack = currentTrackIdRef.current !== radioState.block.id;
-    
+
     // Update current track ID
     if (isNewTrack) {
       currentTrackIdRef.current = radioState.block.id;
       // Reset retry counter for new tracks
       retryAttemptsRef.current = 0;
     }
-    
+
     // Clear any previous errors when loading a new track
     setError(null);
-    
-    console.log("radioState updated in useAudioPlayer", { 
+
+    console.log("radioState updated in useAudioPlayer", {
       hasNext: radioState.hasNext,
       skipNextFunction: !!skipNext,
       blockType: radioState.block.type,
@@ -155,7 +156,7 @@ export const useAudioPlayer = (
     // Handle both relative and absolute URLs, using the backend server
     const fullUrl = newUrl.startsWith('http')
       ? newUrl
-      : `http://localhost:5000${newUrl}`;
+      : `${constants.baseApiUrl}${newUrl}`;
     console.log(`Constructed full URL: ${fullUrl}`);
 
     // Compare current src with the new URL
@@ -168,10 +169,10 @@ export const useAudioPlayer = (
     if (audioRef.current.src !== fullUrl) {
       console.log("URL changed, updating audio source");
       setIsLoading(true);
-      
+
       // Clear any existing timeout
       clearLoadTimeout();
-      
+
       // Set new timeout for loading
       loadTimeoutRef.current = setTimeout(() => {
         console.log("Loading timeout reached");
@@ -183,18 +184,18 @@ export const useAudioPlayer = (
 
       // If we were playing before or this is an auto-play after skip, play the new source
       if (isCurrentlyPlaying || autoPlayAfterSkipRef.current) {
-        console.log("Auto-playing new track", { 
-          wasPlaying: isCurrentlyPlaying, 
-          autoPlayAfterSkip: autoPlayAfterSkipRef.current 
+        console.log("Auto-playing new track", {
+          wasPlaying: isCurrentlyPlaying,
+          autoPlayAfterSkip: autoPlayAfterSkipRef.current
         });
-        
+
         autoPlayAfterSkipRef.current = false; // Reset the flag
-        
+
         audioRef.current.play().catch(err => {
           console.error('Failed to play audio:', err);
           setError('Failed to play audio');
           setIsLoading(false);
-          
+
           // If we fail immediately, start the auto-skip process
           if (retryAttemptsRef.current >= MAX_RETRY_ATTEMPTS) {
             handleAutoSkip();
@@ -240,7 +241,7 @@ export const useAudioPlayer = (
         if (response.status === 404) {
           // Audio still being downloaded or generated
           setError('Audio is being prepared. Please wait...');
-          
+
           // Try again in 3 seconds
           setTimeout(() => {
             if (audioRef.current) {
@@ -248,10 +249,10 @@ export const useAudioPlayer = (
               if (isPlaying) {
                 audioRef.current.play().catch(err => {
                   console.error('Failed to play audio after retry:', err);
-                  
+
                   // Increment retry counter
                   retryAttemptsRef.current++;
-                  
+
                   // If we've reached max retries, auto-skip
                   if (retryAttemptsRef.current >= MAX_RETRY_ATTEMPTS) {
                     handleAutoSkip();
@@ -262,7 +263,7 @@ export const useAudioPlayer = (
           }, 3000);
         } else {
           setError(`Server error: ${response.status}`);
-          
+
           // Auto-skip on serious server errors
           if (response.status >= 500) {
             handleAutoSkip();
@@ -272,7 +273,7 @@ export const useAudioPlayer = (
     } catch (err) {
       console.error('Stream error check failed:', err);
       retryAttemptsRef.current++;
-      
+
       // If network error persists, auto-skip
       if (retryAttemptsRef.current >= MAX_RETRY_ATTEMPTS) {
         handleAutoSkip();
