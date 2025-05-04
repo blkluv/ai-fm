@@ -20,6 +20,7 @@ export const useAudioPlayer = (
       audioRef.current.onplay = () => {
         console.log("Audio play event triggered");
         setIsPlaying(true);
+        setError(null); // Clear any previous errors when playback starts
       };
       audioRef.current.onpause = () => {
         console.log("Audio pause event triggered");
@@ -71,6 +72,9 @@ export const useAudioPlayer = (
   // Update audio source when stream URL changes
   useEffect(() => {
     if (!radioState || !audioRef.current) return;
+    
+    // Clear any previous errors when loading a new track
+    setError(null);
     
     console.log("radioState updated in useAudioPlayer", { 
       hasNext: radioState.hasNext,
@@ -144,6 +148,7 @@ export const useAudioPlayer = (
 
     if (audioRef.current.paused) {
       console.log("Attempting to play audio");
+      setError(null); // Clear any error before attempting to play
       audioRef.current.play().catch(err => {
         console.error('Failed to play audio:', err);
         setError('Failed to play audio');
