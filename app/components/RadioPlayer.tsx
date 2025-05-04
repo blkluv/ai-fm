@@ -3,7 +3,7 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {useRadioWebSocket} from '~/hooks/useRadioWebSocket';
 import {useAudioPlayer} from '~/hooks/useAudioPlayer';
 import {Button, Card, CardBody, Chip, Divider, Progress, Spinner} from "@heroui/react";
-import { FaPlay, FaPause, FaForwardStep, FaBackwardStep } from "react-icons/fa6";
+import {FaBackwardStep, FaForwardStep, FaPause, FaPlay} from "react-icons/fa6";
 
 interface RadioPlayerProps {
   radioId: string;
@@ -19,7 +19,7 @@ export const RadioPlayer: React.FC<RadioPlayerProps> = ({radioId}) => {
   } = useRadioWebSocket(radioId);
 
   const [animateTrack, setAnimateTrack] = useState(false);
-  
+
   // Define a wrapped skipNext function with logging
   const handleSkipNext = useCallback(() => {
     console.log("Skip next triggered from RadioPlayer");
@@ -36,6 +36,8 @@ export const RadioPlayer: React.FC<RadioPlayerProps> = ({radioId}) => {
   // Show loading state when block is being prepared
   const isBlockLoading = radioState?.status.status === "downloading" || radioState?.status.status === "generating";
 
+  const nowPlaying = radioState?.block?.type === "song" ? "Track" : radioState?.block?.type === "sweeper" ? "Sweeper" : "Voiceover";
+
   // Trigger animation when track changes
   useEffect(() => {
     if (radioState?.block?.id) {
@@ -48,10 +50,12 @@ export const RadioPlayer: React.FC<RadioPlayerProps> = ({radioId}) => {
   // Loading animation
   if (!isConnected) {
     return (
-      <div className="w-full max-w-md mx-auto bg-white/80 backdrop-blur-md rounded-xl shadow-xl p-8 flex flex-col items-center justify-center min-h-[300px]">
+      <div
+        className="w-full max-w-md mx-auto bg-white/80 backdrop-blur-md rounded-xl shadow-xl p-8 flex flex-col items-center justify-center min-h-[300px]">
         <div className="flex flex-col items-center gap-6">
           <div className="relative">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-primary-200 to-primary-400 animate-pulse"></div>
+            <div
+              className="w-16 h-16 rounded-full bg-gradient-to-tr from-primary-200 to-primary-400 animate-pulse"></div>
             <div className="absolute inset-0 flex items-center justify-center">
               <span className="text-2xl">📻</span>
             </div>
@@ -69,30 +73,32 @@ export const RadioPlayer: React.FC<RadioPlayerProps> = ({radioId}) => {
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto overflow-hidden backdrop-blur-md bg-white/90 border-none shadow-2xl rounded-3xl">
+    <Card
+      className="w-full max-w-md mx-auto overflow-hidden backdrop-blur-md bg-white/90 border-none shadow-2xl rounded-3xl">
       {/* Radio Header */}
       {radioState && (
         <div className="relative">
           {/* Album Art Placeholder */}
-          <div className="w-full h-28 bg-gradient-to-r from-primary-200 via-secondary-200 to-primary-300 flex items-center justify-center overflow-hidden">
+          <div
+            className="w-full h-28 bg-gradient-to-r from-primary-200 via-secondary-200 to-primary-300 flex items-center justify-center overflow-hidden">
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="relative w-full h-full">
                 {/* Audio Wave Animation */}
                 {isPlaying && (
                   <div className="flex items-center justify-center w-full h-full gap-1">
                     {[...Array(12)].map((_, i) => (
-                      <div 
+                      <div
                         key={i}
-                        className="bg-white/30 rounded-full w-1.5 h-8 animate-sound-wave" 
-                        style={{ 
+                        className="bg-white/30 rounded-full w-1.5 h-8 animate-sound-wave"
+                        style={{
                           animationDelay: `${i * 0.1}s`,
-                          height: `${Math.max(20, Math.floor(Math.random() * 40))}px` 
+                          height: `${Math.max(20, Math.floor(Math.random() * 40))}px`
                         }}
                       ></div>
                     ))}
                   </div>
                 )}
-                
+
                 {/* Station Logo */}
                 <div className="absolute bottom-0 left-0 p-4">
                   <div className="flex items-center">
@@ -112,7 +118,7 @@ export const RadioPlayer: React.FC<RadioPlayerProps> = ({radioId}) => {
               </div>
             </div>
           </div>
-          
+
           {/* Current Status Chip */}
           <div className="absolute top-3 right-3">
             <Chip
@@ -130,7 +136,7 @@ export const RadioPlayer: React.FC<RadioPlayerProps> = ({radioId}) => {
       {radioState && (
         <CardBody className="flex flex-col gap-5 p-6">
           {/* Current Track Display */}
-          <div 
+          <div
             className={`flex flex-col gap-1 transition-all duration-300 ${
               animateTrack ? "translate-y-1 opacity-0" : "translate-y-0 opacity-100"
             }`}
@@ -138,12 +144,13 @@ export const RadioPlayer: React.FC<RadioPlayerProps> = ({radioId}) => {
             <div className="flex justify-between items-start">
               <div>
                 <div className="text-xs font-medium text-primary-500 uppercase tracking-wider mb-1">
-                  Now Playing • {radioState.block.type === "song" ? "Track" : "Voiceover"}
+                  Now Playing • {nowPlaying}
                 </div>
                 <h2 className="text-xl font-bold text-gray-800 line-clamp-1">{radioState.block.title}</h2>
               </div>
-              
-              <div className="flex items-center justify-center min-w-[50px] h-[24px] rounded-full bg-gray-100 text-xs font-medium text-gray-600">
+
+              <div
+                className="flex items-center justify-center min-w-[50px] h-[24px] rounded-full bg-gray-100 text-xs font-medium text-gray-600">
                 {radioState.block.position + 1}/{radioState.totalBlocks}
               </div>
             </div>
@@ -154,7 +161,7 @@ export const RadioPlayer: React.FC<RadioPlayerProps> = ({radioId}) => {
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-2">
-                  <Spinner size="sm" color="primary" />
+                  <Spinner size="sm" color="primary"/>
                   <span className="text-gray-600">
                     {radioState.status?.status === 'downloading'
                       ? 'Downloading track...'
@@ -169,7 +176,7 @@ export const RadioPlayer: React.FC<RadioPlayerProps> = ({radioId}) => {
                   </span>
                 )}
               </div>
-              
+
               {radioState.status?.progress !== undefined && (
                 <Progress
                   value={radioState.status.progress}
@@ -183,15 +190,15 @@ export const RadioPlayer: React.FC<RadioPlayerProps> = ({radioId}) => {
           ) : (
             <div className="h-1 w-full bg-gray-100 rounded-full overflow-hidden">
               {isPlaying && (
-                <div 
+                <div
                   className="h-full bg-primary-500 rounded-full animate-pulse"
-                  style={{ width: '100%', animationDuration: '2s' }}
+                  style={{width: '100%', animationDuration: '2s'}}
                 ></div>
               )}
             </div>
           )}
 
-          <Divider className="my-1" />
+          <Divider className="my-1"/>
 
           {/* Player Controls */}
           <div className="flex items-center justify-between gap-4">
@@ -204,7 +211,7 @@ export const RadioPlayer: React.FC<RadioPlayerProps> = ({radioId}) => {
               size="lg"
               className="bg-gray-100/70 hover:bg-gray-200/70 text-gray-700"
             >
-              <FaBackwardStep className="text-xl" />
+              <FaBackwardStep className="text-xl"/>
             </Button>
 
             <Button
@@ -217,9 +224,9 @@ export const RadioPlayer: React.FC<RadioPlayerProps> = ({radioId}) => {
               isLoading={isLoading}
             >
               {!isLoading && (
-                isPlaying ? 
-                <FaPause className="text-2xl" /> : 
-                <FaPlay className="text-2xl ml-1" />
+                isPlaying ?
+                  <FaPause className="text-2xl"/> :
+                  <FaPlay className="text-2xl ml-1"/>
               )}
             </Button>
 
@@ -235,7 +242,7 @@ export const RadioPlayer: React.FC<RadioPlayerProps> = ({radioId}) => {
               size="lg"
               className="bg-gray-100/70 hover:bg-gray-200/70 text-gray-700"
             >
-              <FaForwardStep className="text-xl" />
+              <FaForwardStep className="text-xl"/>
             </Button>
           </div>
 
