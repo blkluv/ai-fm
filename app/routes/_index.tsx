@@ -45,7 +45,7 @@ export default function Index() {
             </ul>
           </CardBody>
           <CardFooter>
-            <Link to="/radio/1" className="w-full">
+            <Link to="/dashboard" className="w-full">
               <Button 
                 className="w-full bg-blue-500 text-white font-medium py-6"
                 size="lg"

@@ -17,3 +17,11 @@ export type RadioState = {
     progress?: number; // 0-100 percentage if available
   };
 };
+
+export type RadiosResponse = {
+  id: string;
+  title: string;
+  description: string | null;
+  is_public: boolean;
+  blockCount: number;
+}[];
