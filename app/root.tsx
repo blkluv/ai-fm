@@ -1,4 +1,4 @@
-import {Links, Meta, Outlet, Scripts, ScrollRestoration,} from "@remix-run/react";
+import {json, Links, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData,} from "@remix-run/react";
 import type {LinksFunction} from "@remix-run/node";
 
 import "./tailwind.css";
@@ -6,6 +6,7 @@ import {HeroUIProvider} from "@heroui/react";
 import {QueryClientProvider} from "@tanstack/react-query";
 import {queryClient} from "~/providers/query-client";
 import {Toaster} from "sonner";
+import React from "react";
 
 export const links: LinksFunction = () => [
   {rel: "preconnect", href: "https://fonts.googleapis.com"},
@@ -20,7 +21,17 @@ export const links: LinksFunction = () => [
   },
 ];
 
+export function loader() {
+  return json({
+    ENV: {
+      API_URL: process.env.API_URL!,
+      WS_API_URL: process.env.WS_API_URL!,
+    }
+  });
+}
+
 export function Layout({children}: { children: React.ReactNode }) {
+  const data = useLoaderData<typeof loader>()
   return (
     <html lang="en">
     <head>
@@ -30,6 +41,11 @@ export function Layout({children}: { children: React.ReactNode }) {
       <Links/>
     </head>
     <body>
+    <script
+      dangerouslySetInnerHTML={{
+        __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
+      }}
+    />
     <HeroUIProvider>
       <QueryClientProvider client={queryClient}>
         <Toaster/>

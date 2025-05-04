@@ -1,4 +1,6 @@
+import getEnv from "~/get-env";
+
 export const constants = {
-  baseApiUrl: "http://localhost:5000",
-  baseApiWsUrl: "ws://localhost:5000",
+  baseApiUrl: getEnv().API_URL,
+  baseApiWsUrl: getEnv().WS_API_URL,
 }
