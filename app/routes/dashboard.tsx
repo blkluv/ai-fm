@@ -42,8 +42,8 @@ export default function Dashboard() {
         return b.blockCount - a.blockCount;
       case "newest":
       default:
-        // Assuming newer radios have larger IDs (not ideal but works for demo)
-        return b.id.localeCompare(a.id);
+        // Sort by creation date, newest first
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     }
   }) : [];
 

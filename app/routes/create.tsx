@@ -1,9 +1,26 @@
 import {useState} from 'react';
 import {Controller, useFieldArray, useForm} from 'react-hook-form';
-import {Button, Card, CardBody, CardHeader, Checkbox, Divider, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Textarea, Tooltip} from '@heroui/react';
+import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Checkbox,
+  Divider,
+  Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  Select,
+  SelectItem,
+  Textarea
+} from '@heroui/react';
 import {useNavigate} from '@remix-run/react';
-import {useMutation} from '@tanstack/react-query';
+import {useMutation, useQuery} from '@tanstack/react-query';
 import {api} from '~/providers/api';
+import type {ModeratorsResponse} from '~/types';
 
 // YouTube URL validation regex
 const YOUTUBE_REGEX = /^(https?:\/\/)?(www\.|music\.)?(youtube\.com|youtu\.?be)\/.+$/;
@@ -13,24 +30,39 @@ type FormValues = {
   description: string;
   is_public: boolean;
   songs: { url: string }[];
+  voice_id?: string;
+  voice_description?: string;
 };
 
 export default function Create() {
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [bulkUrlsModalOpen, setBulkUrlsModalOpen] = useState(false);
   const [bulkUrlsInput, setBulkUrlsInput] = useState('');
   const [bulkUrlsError, setBulkUrlsError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const {control, register, handleSubmit, formState: {errors}, setValue, reset} = useForm<FormValues>({
+  // Fetch moderators list
+  const {data: moderators, isLoading: moderatorsLoading} = useQuery<ModeratorsResponse>({
+    queryKey: ['moderators'],
+    queryFn: async () => {
+      const response = await api.get('/voiceover/moderators');
+      return response.data;
+    }
+  });
+
+  const {control, register, handleSubmit, formState: {errors}, setValue, watch} = useForm<FormValues>({
     defaultValues: {
       title: '',
       description: '',
       is_public: true,
       songs: [{url: ''}],
+      voice_id: undefined,
+      voice_description: '',
     },
   });
+
+  // Watch voice_id to enable/disable personality field
+  const selectedVoiceId = watch('voice_id');
 
   const {fields, append, remove} = useFieldArray({
     control,
@@ -41,12 +73,12 @@ export default function Create() {
   const processBulkUrls = () => {
     setBulkUrlsError(null);
     const urls = bulkUrlsInput.split(/[\n\r]+/).filter(url => url.trim() && YOUTUBE_REGEX.test(url.trim()));
-    
+
     if (urls.length === 0) {
       setBulkUrlsError("No valid YouTube URLs found. Please check your input.");
       return;
     }
-    
+
     // Remove all current fields except the first one
     for (let i = fields.length - 1; i >= 0; i--) {
       if (i > 0) remove(i);
@@ -59,7 +91,7 @@ export default function Create() {
     urls.slice(1).forEach(url => {
       append({url: url.trim()});
     });
-    
+
     // Close modal and reset input
     setBulkUrlsModalOpen(false);
     setBulkUrlsInput('');
@@ -71,10 +103,11 @@ export default function Create() {
       try {
         const response = await api.post('/radios', formData);
         return response.data;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         // Handle axios error
-        const errorMessage = error.response?.data?.message || 
-                            `Failed to create radio (${error.response?.status || 'Network error'})`;
+        const errorMessage = error.response?.data?.message ||
+          `Failed to create radio (${error.response?.status || 'Network error'})`;
         throw new Error(errorMessage);
       }
     },
@@ -99,10 +132,20 @@ export default function Create() {
       return;
     }
 
+    // Prepare the form data
     const formData = {
       ...data,
       songs: filteredSongs,
     };
+
+    // Only include voice fields if a voice is selected
+    if (!data.voice_id) {
+      delete formData.voice_id;
+      delete formData.voice_description;
+    } else if (!data.voice_description || data.voice_description.trim() === '') {
+      // If no personality is provided, don't include it
+      delete formData.voice_description;
+    }
 
     createRadioMutation.mutate(formData);
   };
@@ -159,6 +202,63 @@ export default function Create() {
                     </Checkbox>
                   )}
                 />
+              </div>
+
+              <Divider className="my-2"/>
+
+              {/* Moderator Voice Section */}
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Moderator Voice</h3>
+
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="voice_id" className="text-sm font-medium">
+                      Select Voice (Optional)
+                    </label>
+                    <Controller
+                      name="voice_id"
+                      control={control}
+                      render={({field}) => (
+                        <Select
+                          aria-label={field.name}
+                          id="voice_id"
+                          placeholder="Select a moderator voice"
+                          value={field.value}
+                          onChange={field.onChange}
+                          isLoading={moderatorsLoading}
+                          className="max-w-full"
+                        >
+                          {
+                            !moderators ? null : moderators.map((moderator) => (
+                              <SelectItem key={moderator.id} aria-label={moderator.name}>
+                                {moderator.name}
+                              </SelectItem>
+                            ))
+                          }
+                        </Select>
+                      )}
+                    />
+                    <div className="text-xs text-gray-500">
+                      A moderator voice will introduce songs and add personality to your radio station.
+                    </div>
+                  </div>
+
+                  {selectedVoiceId && (
+                    <div className="flex flex-col gap-2">
+                      <label htmlFor="voice_description" className="text-sm font-medium">
+                        Voice Personality (Optional)
+                      </label>
+                      <Textarea
+                        id="voice_description"
+                        placeholder="Describe the personality of your moderator (e.g., 'Energetic and enthusiastic DJ who loves rock music')"
+                        {...register("voice_description")}
+                      />
+                      <div className="text-xs text-gray-500">
+                        Customize how your moderator speaks by describing their personality.
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <Divider className="my-2"/>
@@ -224,8 +324,8 @@ export default function Create() {
 
               {(error || createRadioMutation.error) && (
                 <div className="text-red-500 text-sm p-3 bg-red-50 rounded-lg border border-red-200">
-                  {error || (createRadioMutation.error instanceof Error 
-                    ? createRadioMutation.error.message 
+                  {error || (createRadioMutation.error instanceof Error
+                    ? createRadioMutation.error.message
                     : 'An error occurred while creating the radio station')}
                 </div>
               )}
@@ -251,10 +351,10 @@ export default function Create() {
           </CardBody>
         </Card>
       </div>
-      
+
       {/* Bulk URLs Modal */}
-      <Modal 
-        isOpen={bulkUrlsModalOpen} 
+      <Modal
+        isOpen={bulkUrlsModalOpen}
         onOpenChange={setBulkUrlsModalOpen}
         size="2xl"
       >

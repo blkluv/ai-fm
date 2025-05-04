@@ -25,4 +25,11 @@ export type RadiosResponse = {
   is_public: boolean;
   blockCount: number;
   songCount: number;
+  createdAt: string;
 }[];
+
+export type ModeratorsResponse = {
+  id: string;
+  name: string;
+  personality: string;
+}[]
