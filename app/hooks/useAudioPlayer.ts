@@ -2,6 +2,10 @@
 import {useEffect, useRef, useState} from 'react';
 import {RadioState} from '~/types';
 
+// Constants for error handling
+const ERROR_TIMEOUT_MS = 8000; // 8 seconds to wait before skipping
+const MAX_RETRY_ATTEMPTS = 2;
+
 export const useAudioPlayer = (
   radioState: RadioState | null, 
   skipNext?: () => void
@@ -11,6 +15,31 @@ export const useAudioPlayer = (
   const [error, setError] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const autoPlayAfterSkipRef = useRef(false);
+  const loadTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const retryAttemptsRef = useRef(0);
+  const currentTrackIdRef = useRef<string | null>(null);
+
+  // Function to clear loading timeout
+  const clearLoadTimeout = () => {
+    if (loadTimeoutRef.current) {
+      clearTimeout(loadTimeoutRef.current);
+      loadTimeoutRef.current = null;
+    }
+  };
+
+  // Function to handle skipping to next track after error
+  const handleAutoSkip = () => {
+    console.log("Auto-skipping due to loading timeout or error");
+    clearLoadTimeout();
+    
+    if (skipNext && radioState?.hasNext !== false) {
+      setError('Track failed to load - skipping to next track');
+      autoPlayAfterSkipRef.current = true;
+      skipNext();
+    } else {
+      setError('Track failed to load and no next track available');
+    }
+  };
 
   // Create audio element if it doesn't exist
   useEffect(() => {
@@ -21,6 +50,8 @@ export const useAudioPlayer = (
         console.log("Audio play event triggered");
         setIsPlaying(true);
         setError(null); // Clear any previous errors when playback starts
+        clearLoadTimeout(); // Clear timeout when playback starts successfully
+        retryAttemptsRef.current = 0; // Reset retry counter on successful play
       };
       audioRef.current.onpause = () => {
         console.log("Audio pause event triggered");
@@ -33,6 +64,7 @@ export const useAudioPlayer = (
       audioRef.current.oncanplay = () => {
         console.log("Audio can play event triggered");
         setIsLoading(false);
+        clearLoadTimeout(); // Clear timeout when track is ready to play
       };
       audioRef.current.onerror = (e) => {
         console.error('Audio playback error:', e);
@@ -40,6 +72,19 @@ export const useAudioPlayer = (
         console.log("Error message:", audioRef.current?.error?.message);
         setError('Failed to play audio');
         setIsLoading(false);
+        
+        // If we've tried too many times, skip to the next track
+        if (retryAttemptsRef.current >= MAX_RETRY_ATTEMPTS) {
+          console.log(`Failed after ${retryAttemptsRef.current} attempts, skipping track`);
+          handleAutoSkip();
+        } else {
+          retryAttemptsRef.current++;
+          console.log(`Retry attempt ${retryAttemptsRef.current} of ${MAX_RETRY_ATTEMPTS}`);
+          
+          // Set timeout for this retry attempt
+          clearLoadTimeout();
+          loadTimeoutRef.current = setTimeout(handleAutoSkip, ERROR_TIMEOUT_MS);
+        }
       };
       audioRef.current.onended = () => {
         console.log("Audio ended event triggered");
@@ -62,6 +107,7 @@ export const useAudioPlayer = (
     }
 
     return () => {
+      clearLoadTimeout();
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.src = '';
@@ -73,6 +119,16 @@ export const useAudioPlayer = (
   useEffect(() => {
     if (!radioState || !audioRef.current) return;
     
+    // Check if this is a new track
+    const isNewTrack = currentTrackIdRef.current !== radioState.block.id;
+    
+    // Update current track ID
+    if (isNewTrack) {
+      currentTrackIdRef.current = radioState.block.id;
+      // Reset retry counter for new tracks
+      retryAttemptsRef.current = 0;
+    }
+    
     // Clear any previous errors when loading a new track
     setError(null);
     
@@ -81,7 +137,8 @@ export const useAudioPlayer = (
       skipNextFunction: !!skipNext,
       blockType: radioState.block.type,
       blockPosition: radioState.block.position,
-      totalBlocks: radioState.totalBlocks
+      totalBlocks: radioState.totalBlocks,
+      isNewTrack
     });
 
     const isCurrentlyPlaying = !audioRef.current.paused;
@@ -111,6 +168,15 @@ export const useAudioPlayer = (
     if (audioRef.current.src !== fullUrl) {
       console.log("URL changed, updating audio source");
       setIsLoading(true);
+      
+      // Clear any existing timeout
+      clearLoadTimeout();
+      
+      // Set new timeout for loading
+      loadTimeoutRef.current = setTimeout(() => {
+        console.log("Loading timeout reached");
+        handleAutoSkip();
+      }, ERROR_TIMEOUT_MS);
 
       // Update the source using the full URL
       audioRef.current.src = fullUrl;
@@ -128,6 +194,13 @@ export const useAudioPlayer = (
           console.error('Failed to play audio:', err);
           setError('Failed to play audio');
           setIsLoading(false);
+          
+          // If we fail immediately, start the auto-skip process
+          if (retryAttemptsRef.current >= MAX_RETRY_ATTEMPTS) {
+            handleAutoSkip();
+          } else {
+            retryAttemptsRef.current++;
+          }
         });
       }
     }
@@ -167,21 +240,43 @@ export const useAudioPlayer = (
         if (response.status === 404) {
           // Audio still being downloaded or generated
           setError('Audio is being prepared. Please wait...');
+          
           // Try again in 3 seconds
           setTimeout(() => {
             if (audioRef.current) {
               audioRef.current.load();
               if (isPlaying) {
-                audioRef.current.play().catch(console.error);
+                audioRef.current.play().catch(err => {
+                  console.error('Failed to play audio after retry:', err);
+                  
+                  // Increment retry counter
+                  retryAttemptsRef.current++;
+                  
+                  // If we've reached max retries, auto-skip
+                  if (retryAttemptsRef.current >= MAX_RETRY_ATTEMPTS) {
+                    handleAutoSkip();
+                  }
+                });
               }
             }
           }, 3000);
         } else {
           setError(`Server error: ${response.status}`);
+          
+          // Auto-skip on serious server errors
+          if (response.status >= 500) {
+            handleAutoSkip();
+          }
         }
       }
     } catch (err) {
       console.error('Stream error check failed:', err);
+      retryAttemptsRef.current++;
+      
+      // If network error persists, auto-skip
+      if (retryAttemptsRef.current >= MAX_RETRY_ATTEMPTS) {
+        handleAutoSkip();
+      }
     }
   };
 
