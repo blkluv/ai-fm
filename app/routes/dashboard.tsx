@@ -170,7 +170,7 @@ export default function Dashboard() {
 
                 <CardFooter className="flex justify-between">
                   <div className="text-sm text-gray-500">
-                    {radio.blockCount} track{radio.blockCount !== 1 ? "s" : ""}
+                    {radio.songCount} track{radio.blockCount !== 1 ? "s" : ""}
                   </div>
 
                   <Tooltip content="Play this station">

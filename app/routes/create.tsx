@@ -1,6 +1,6 @@
 import {useState} from 'react';
 import {Controller, useFieldArray, useForm} from 'react-hook-form';
-import {Button, Card, CardBody, CardHeader, Checkbox, Divider, Input, Textarea, Tooltip} from '@heroui/react';
+import {Button, Card, CardBody, CardHeader, Checkbox, Divider, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Textarea, Tooltip} from '@heroui/react';
 import {useNavigate} from '@remix-run/react';
 import {useMutation} from '@tanstack/react-query';
 import {api} from '~/providers/api';
@@ -18,9 +18,12 @@ type FormValues = {
 export default function Create() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [bulkUrlsModalOpen, setBulkUrlsModalOpen] = useState(false);
+  const [bulkUrlsInput, setBulkUrlsInput] = useState('');
+  const [bulkUrlsError, setBulkUrlsError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const {control, register, handleSubmit, formState: {errors}, setValue} = useForm<FormValues>({
+  const {control, register, handleSubmit, formState: {errors}, setValue, reset} = useForm<FormValues>({
     defaultValues: {
       title: '',
       description: '',
@@ -33,6 +36,34 @@ export default function Create() {
     control,
     name: "songs",
   });
+
+  // Function to process bulk URLs
+  const processBulkUrls = () => {
+    setBulkUrlsError(null);
+    const urls = bulkUrlsInput.split(/[\n\r]+/).filter(url => url.trim() && YOUTUBE_REGEX.test(url.trim()));
+    
+    if (urls.length === 0) {
+      setBulkUrlsError("No valid YouTube URLs found. Please check your input.");
+      return;
+    }
+    
+    // Remove all current fields except the first one
+    for (let i = fields.length - 1; i >= 0; i--) {
+      if (i > 0) remove(i);
+    }
+
+    // Set the first field to the first URL
+    setValue("songs.0.url", urls[0]);
+
+    // Add remaining URLs as new fields
+    urls.slice(1).forEach(url => {
+      append({url: url.trim()});
+    });
+    
+    // Close modal and reset input
+    setBulkUrlsModalOpen(false);
+    setBulkUrlsInput('');
+  };
 
   // Create radio mutation with React Query
   const createRadioMutation = useMutation({
@@ -137,35 +168,14 @@ export default function Create() {
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-lg font-semibold">Add Songs</h3>
 
-                  <Tooltip content="Paste multiple YouTube URLs at once (one per line)">
-                    <Button
-                      size="sm"
-                      variant="flat"
-                      color="secondary"
-                      onPress={() => {
-                        const bulkUrls = window.prompt("Paste multiple YouTube URLs (one per line):");
-                        if (bulkUrls) {
-                          const urls = bulkUrls.split(/[\n\r\s]+/).filter(url => url.trim() && YOUTUBE_REGEX.test(url.trim()));
-                          if (urls.length > 0) {
-                            // Remove all current fields except the first one
-                            for (let i = fields.length - 1; i >= 0; i--) {
-                              if (i > 0) remove(i);
-                            }
-
-                            // Set the first field to the first URL
-                            setValue("songs.0.url", urls[0]);
-
-                            // Add remaining URLs as new fields
-                            urls.slice(1).forEach(url => {
-                              append({url: url.trim()});
-                            });
-                          }
-                        }
-                      }}
-                    >
-                      Bulk Add URLs
-                    </Button>
-                  </Tooltip>
+                  <Button
+                    size="sm"
+                    variant="flat"
+                    color="secondary"
+                    onPress={() => setBulkUrlsModalOpen(true)}
+                  >
+                    Bulk Add URLs
+                  </Button>
                 </div>
 
                 <div className="text-xs text-gray-500 mb-4">
@@ -241,6 +251,57 @@ export default function Create() {
           </CardBody>
         </Card>
       </div>
+      
+      {/* Bulk URLs Modal */}
+      <Modal 
+        isOpen={bulkUrlsModalOpen} 
+        onOpenChange={setBulkUrlsModalOpen}
+        size="2xl"
+      >
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                Add Multiple YouTube URLs
+              </ModalHeader>
+              <ModalBody>
+                <p className="text-sm text-gray-600 mb-2">
+                  Paste multiple YouTube URLs below (one per line). All current URLs will be replaced.
+                </p>
+                <Textarea
+                  placeholder="https://www.youtube.com/watch?v=example1&#10;https://youtu.be/example2&#10;..."
+                  value={bulkUrlsInput}
+                  onChange={(e) => setBulkUrlsInput(e.target.value)}
+                  rows={10}
+                  variant="bordered"
+                  classNames={{
+                    innerWrapper: "font-mono text-sm"
+                  }}
+                />
+                {bulkUrlsError && (
+                  <div className="text-red-500 text-sm mt-2">{bulkUrlsError}</div>
+                )}
+                <div className="text-xs text-gray-500 mt-2">
+                  <p>✓ Supported URL formats:</p>
+                  <ul className="list-disc pl-5 mt-1 space-y-1">
+                    <li>youtube.com/watch?v=...</li>
+                    <li>youtu.be/...</li>
+                    <li>music.youtube.com/watch?v=...</li>
+                  </ul>
+                </div>
+              </ModalBody>
+              <ModalFooter>
+                <Button variant="flat" onPress={onClose}>
+                  Cancel
+                </Button>
+                <Button color="primary" onPress={processBulkUrls}>
+                  Add URLs
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </div>
   );
 }
