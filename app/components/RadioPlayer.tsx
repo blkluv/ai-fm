@@ -143,7 +143,7 @@ export const RadioPlayer: React.FC<RadioPlayerProps> = ({radioId}) => {
           >
             <div className="flex justify-between items-start">
               <div>
-                <div className="text-xs font-medium text-primary-500 uppercase tracking-wider mb-1">
+                <div className="text-xs font-medium text-primary-500 uppercase tracking-wider mb-1 line-clamp-1">
                   Now Playing • {nowPlaying}
                 </div>
                 <h2 className="text-xl font-bold text-gray-800 line-clamp-1">{radioState.block.title}</h2>

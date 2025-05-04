@@ -1,31 +1,31 @@
-import { useState } from "react";
-import { Link, useNavigate } from "@remix-run/react";
-import { FaPlay } from "react-icons/fa6";
-import { useQuery } from "@tanstack/react-query";
-import { 
-  Button, 
-  Card, 
-  CardBody, 
-  CardFooter, 
-  CardHeader, 
-  Chip, 
+import {useState} from "react";
+import {useNavigate} from "@remix-run/react";
+import {FaPlay} from "react-icons/fa6";
+import {useQuery} from "@tanstack/react-query";
+import {
+  Button,
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+  Chip,
   Divider,
   Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
   DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
   Spinner,
   Tooltip
 } from "@heroui/react";
-import type { RadiosResponse } from "~/types";
-import { api } from "~/providers/api";
+import type {RadiosResponse} from "~/types";
+import {api} from "~/providers/api";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const [sortBy, setSortBy] = useState<"newest" | "alphabetical" | "size">("newest");
 
   // Fetch radio stations
-  const { data: radios, isLoading, error, refetch } = useQuery({
+  const {data: radios, isLoading, error, refetch} = useQuery({
     queryKey: ["radios"],
     queryFn: async () => {
       const response = await api.get<RadiosResponse>("/radios");
@@ -60,18 +60,18 @@ export default function Dashboard() {
             <h1 className="text-3xl font-bold text-gray-800">My Radio Stations</h1>
             <p className="text-gray-600 mt-1">Manage and play your custom radio stations</p>
           </div>
-          
+
           <div className="mt-4 md:mt-0 flex gap-2">
             <Dropdown>
               <DropdownTrigger>
-                <Button 
-                  variant="flat" 
+                <Button
+                  variant="flat"
                   color="default"
                 >
                   Sort: {sortBy === "newest" ? "Newest" : sortBy === "alphabetical" ? "A-Z" : "Size"}
                 </Button>
               </DropdownTrigger>
-              <DropdownMenu 
+              <DropdownMenu
                 aria-label="Sort options"
                 onAction={(key) => setSortBy(key as "newest" | "alphabetical" | "size")}
               >
@@ -80,9 +80,9 @@ export default function Dashboard() {
                 <DropdownItem key="size">Size (# of tracks)</DropdownItem>
               </DropdownMenu>
             </Dropdown>
-            
-            <Button 
-              color="primary" 
+
+            <Button
+              color="primary"
               onPress={() => navigate("/create")}
             >
               Create New Station
@@ -95,11 +95,11 @@ export default function Dashboard() {
           <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg mb-6">
             <p className="font-medium">Error loading radio stations</p>
             <p className="text-sm">{(error as Error).message || "Unknown error occurred"}</p>
-            <Button 
-              size="sm" 
-              color="danger" 
-              variant="flat" 
-              className="mt-2" 
+            <Button
+              size="sm"
+              color="danger"
+              variant="flat"
+              className="mt-2"
               onPress={() => refetch()}
             >
               Try Again
@@ -110,7 +110,7 @@ export default function Dashboard() {
         {/* Loading state */}
         {isLoading && (
           <div className="flex justify-center items-center p-12">
-            <Spinner size="lg" label="Loading radio stations..." color="primary" />
+            <Spinner size="lg" label="Loading radio stations..." color="primary"/>
           </div>
         )}
 
@@ -123,8 +123,8 @@ export default function Dashboard() {
               <p className="text-gray-600 mb-6 max-w-md">
                 Create your first radio station to get started. Add YouTube links and customize your station.
               </p>
-              <Button 
-                color="primary" 
+              <Button
+                color="primary"
                 size="lg"
                 onPress={() => navigate("/create")}
               >
@@ -138,27 +138,27 @@ export default function Dashboard() {
         {!isLoading && sortedRadios && sortedRadios.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {sortedRadios.map((radio) => (
-              <Card 
+              <Card
                 key={radio.id}
                 className=""
               >
                 <CardHeader className="flex flex-col items-start">
                   <div className="flex justify-between w-full items-start">
                     <h2 className="text-xl font-bold line-clamp-1">{radio.title}</h2>
-                    <Chip 
-                      color={radio.is_public ? "success" : "default"} 
-                      variant="flat" 
+                    <Chip
+                      color={radio.is_public ? "success" : "default"}
+                      variant="flat"
                       size="sm"
                     >
                       {radio.is_public ? "Public" : "Private"}
                     </Chip>
                   </div>
                 </CardHeader>
-                
-                <Divider />
-                
-                <CardBody 
-                  className="cursor-pointer" 
+
+                <Divider/>
+
+                <CardBody
+                  className="cursor-pointer"
                   onClick={() => handleRadioClick(radio.id)}
                 >
                   {radio.description ? (
@@ -167,21 +167,22 @@ export default function Dashboard() {
                     <p className="text-gray-400 italic">No description</p>
                   )}
                 </CardBody>
-                
+
                 <CardFooter className="flex justify-between">
                   <div className="text-sm text-gray-500">
                     {radio.blockCount} track{radio.blockCount !== 1 ? "s" : ""}
                   </div>
-                  
+
                   <Tooltip content="Play this station">
-                    <Button 
-                      color="primary" 
-                      variant="flat" 
-                      size="sm" 
+                    <Button
+                      color="primary"
+                      variant="flat"
+                      size="sm"
+                      radius={"full"}
                       isIconOnly
                       onPress={() => handleRadioClick(radio.id)}
                     >
-                      <FaPlay />
+                      <FaPlay/>
                     </Button>
                   </Tooltip>
                 </CardFooter>
