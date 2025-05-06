@@ -16,6 +16,8 @@ export type RadioState = {
     status: "downloading" | "generating" | "ready";
     progress?: number; // 0-100 percentage if available
   };
+  totalSongs: number;
+  totalDownloadedSongs: number;
 };
 
 export type RadiosResponse = {
@@ -32,4 +34,4 @@ export type ModeratorsResponse = {
   id: string;
   name: string;
   personality: string;
-}[]
+}[];
