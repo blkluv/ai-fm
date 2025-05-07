@@ -161,7 +161,7 @@ export const RadioPlayer: React.FC<RadioPlayerProps> = ({radioId}) => {
                     <div className="flex flex-col gap-3 mt-2">
                       <div className="flex flex-col gap-2">
                         <div className="font-semibold text-sm flex justify-between">
-                          <span>Quick run (any platform - recommended):</span> 
+                          <span>Run this command in your terminal:</span> 
                           <Button 
                             size="sm" 
                             variant="flat" 
@@ -177,44 +177,6 @@ export const RadioPlayer: React.FC<RadioPlayerProps> = ({radioId}) => {
                           </code>
                         </Card>
                       </div>
-                      
-                      <div className="flex flex-col gap-2">
-                        <div className="font-semibold text-sm flex justify-between">
-                          <span>Linux / Mac:</span> 
-                          <Button 
-                            size="sm" 
-                            variant="flat" 
-                            color="primary"
-                            onPress={() => navigator.clipboard.writeText("node <(curl -s https://raw.githubusercontent.com/AspireOne/ai-fm-backend/refs/heads/main/bundled-cli.js)")}
-                          >
-                            Copy
-                          </Button>
-                        </div>
-                        <Card className="bg-gray-50 p-2">
-                          <code className="text-xs break-all">
-                            node &lt;(curl -s https://raw.githubusercontent.com/AspireOne/ai-fm-backend/refs/heads/main/bundled-cli.js)
-                          </code>
-                        </Card>
-                      </div>
-                      
-                      <div className="flex flex-col gap-2">
-                        <div className="font-semibold text-sm flex justify-between">
-                          <span>Windows (PowerShell):</span>
-                          <Button 
-                            size="sm" 
-                            variant="flat" 
-                            color="primary"
-                            onClick={() => navigator.clipboard.writeText("curl -s https://raw.githubusercontent.com/AspireOne/ai-fm-backend/refs/heads/main/bundled-cli.js -o $env:TEMP\\bundled-cli.js; node $env:TEMP\\bundled-cli.js")}
-                          >
-                            Copy
-                          </Button>
-                        </div>
-                        <Card className="bg-gray-50 p-2">
-                          <code className="text-xs break-all">
-                            curl -s https://raw.githubusercontent.com/AspireOne/ai-fm-backend/refs/heads/main/bundled-cli.js -o $env:TEMP\bundled-cli.js; node $env:TEMP\bundled-cli.js
-                          </code>
-                        </Card>
-                      </div>
                     </div>
                     
                     <div className="text-sm bg-gray-50 p-3 rounded-lg">
@@ -223,7 +185,8 @@ export const RadioPlayer: React.FC<RadioPlayerProps> = ({radioId}) => {
                         <li>Copy the command for your operating system</li>
                         <li>Open a terminal/command prompt</li>
                         <li>Paste and run the command</li>
-                        <li>Select this radio station when prompted</li>
+                        <li>Select this radio station</li>
+                        <li>Install yt-dlp and ffmpeg if prompted using provided instructions</li>
                         <li>Wait for downloads to complete</li>
                         <li>Refresh this page when done</li>
                       </ol>
@@ -485,7 +448,7 @@ export const RadioPlayer: React.FC<RadioPlayerProps> = ({radioId}) => {
                   <div className="flex flex-col gap-3 mt-2">
                     <div className="flex flex-col gap-2">
                       <div className="font-semibold text-sm flex justify-between">
-                        <span>Quick run (any platform - recommended):</span> 
+                        <span>Run this command in your terminal:</span> 
                         <Button 
                           size="sm" 
                           variant="flat" 
@@ -501,44 +464,6 @@ export const RadioPlayer: React.FC<RadioPlayerProps> = ({radioId}) => {
                         </code>
                       </Card>
                     </div>
-                    
-                    <div className="flex flex-col gap-2">
-                      <div className="font-semibold text-sm flex justify-between">
-                        <span>Linux / Mac:</span> 
-                        <Button 
-                          size="sm" 
-                          variant="flat" 
-                          color="primary"
-                          onPress={() => navigator.clipboard.writeText("node <(curl -s https://raw.githubusercontent.com/AspireOne/ai-fm-backend/refs/heads/main/bundled-cli.js)")}
-                        >
-                          Copy
-                        </Button>
-                      </div>
-                      <Card className="bg-gray-50 p-2">
-                        <code className="text-xs break-all">
-                          node &lt;(curl -s https://raw.githubusercontent.com/AspireOne/ai-fm-backend/refs/heads/main/bundled-cli.js)
-                        </code>
-                      </Card>
-                    </div>
-                    
-                    <div className="flex flex-col gap-2">
-                      <div className="font-semibold text-sm flex justify-between">
-                        <span>Windows (PowerShell):</span>
-                        <Button 
-                          size="sm" 
-                          variant="flat" 
-                          color="primary"
-                          onClick={() => navigator.clipboard.writeText("curl -s https://raw.githubusercontent.com/AspireOne/ai-fm-backend/refs/heads/main/bundled-cli.js -o $env:TEMP\\bundled-cli.js; node $env:TEMP\\bundled-cli.js")}
-                        >
-                          Copy
-                        </Button>
-                      </div>
-                      <Card className="bg-gray-50 p-2">
-                        <code className="text-xs break-all">
-                          curl -s https://raw.githubusercontent.com/AspireOne/ai-fm-backend/refs/heads/main/bundled-cli.js -o $env:TEMP\bundled-cli.js; node $env:TEMP\bundled-cli.js
-                        </code>
-                      </Card>
-                    </div>
                   </div>
                   
                   <div className="text-sm bg-gray-50 p-3 rounded-lg">
@@ -547,8 +472,10 @@ export const RadioPlayer: React.FC<RadioPlayerProps> = ({radioId}) => {
                       <li>Copy the command for your operating system</li>
                       <li>Open a terminal/command prompt</li>
                       <li>Paste and run the command</li>
-                      <li>Select this radio station when prompted</li>
+                      <li>Select this radio station</li>
+                      <li>Install yt-dlp and ffmpeg if prompted using provided instructions</li>
                       <li>Wait for downloads to complete</li>
+                      <li>Refresh this page when done</li>
                     </ol>
                   </div>
                   
