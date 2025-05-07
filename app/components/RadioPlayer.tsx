@@ -161,12 +161,31 @@ export const RadioPlayer: React.FC<RadioPlayerProps> = ({radioId}) => {
                     <div className="flex flex-col gap-3 mt-2">
                       <div className="flex flex-col gap-2">
                         <div className="font-semibold text-sm flex justify-between">
+                          <span>Quick run (any platform - recommended):</span> 
+                          <Button 
+                            size="sm" 
+                            variant="flat" 
+                            color="primary"
+                            onClick={() => navigator.clipboard.writeText("npx aifm")}
+                          >
+                            Copy
+                          </Button>
+                        </div>
+                        <Card className="bg-gray-50 p-2">
+                          <code className="text-xs break-all">
+                            npx aifm
+                          </code>
+                        </Card>
+                      </div>
+                      
+                      <div className="flex flex-col gap-2">
+                        <div className="font-semibold text-sm flex justify-between">
                           <span>Linux / Mac:</span> 
                           <Button 
                             size="sm" 
                             variant="flat" 
                             color="primary"
-                            onClick={() => navigator.clipboard.writeText("node <(curl -s https://raw.githubusercontent.com/AspireOne/ai-fm-backend/refs/heads/main/bundled-cli.js)")}
+                            onPresss={() => navigator.clipboard.writeText("node <(curl -s https://raw.githubusercontent.com/AspireOne/ai-fm-backend/refs/heads/main/bundled-cli.js)")}
                           >
                             Copy
                           </Button>
@@ -466,12 +485,31 @@ export const RadioPlayer: React.FC<RadioPlayerProps> = ({radioId}) => {
                   <div className="flex flex-col gap-3 mt-2">
                     <div className="flex flex-col gap-2">
                       <div className="font-semibold text-sm flex justify-between">
+                        <span>Quick run (any platform - recommended):</span> 
+                        <Button 
+                          size="sm" 
+                          variant="flat" 
+                          color="primary"
+                          onPress={() => navigator.clipboard.writeText("npx aifm")}
+                        >
+                          Copy
+                        </Button>
+                      </div>
+                      <Card className="bg-gray-50 p-2">
+                        <code className="text-xs break-all">
+                          npx aifm
+                        </code>
+                      </Card>
+                    </div>
+                    
+                    <div className="flex flex-col gap-2">
+                      <div className="font-semibold text-sm flex justify-between">
                         <span>Linux / Mac:</span> 
                         <Button 
                           size="sm" 
                           variant="flat" 
                           color="primary"
-                          onClick={() => navigator.clipboard.writeText("node <(curl -s https://raw.githubusercontent.com/AspireOne/ai-fm-backend/refs/heads/main/bundled-cli.js)")}
+                          onPress={() => navigator.clipboard.writeText("node <(curl -s https://raw.githubusercontent.com/AspireOne/ai-fm-backend/refs/heads/main/bundled-cli.js)")}
                         >
                           Copy
                         </Button>
