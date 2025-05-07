@@ -43,10 +43,10 @@ export const RadioPlayer: React.FC<RadioPlayerProps> = ({radioId}) => {
   const songsRemaining = radioState ? radioState.totalSongs - radioState.totalDownloadedSongs : 0;
   const needsDownloading = songsRemaining > 0;
 
-  // Show modal only once when radio is first connected and songs need downloading
+  // Show modal only once when radio is first connected and some songs need downloading (but not all)
   useEffect(() => {
-    if (isConnected && radioState && needsDownloading && !isModalOpen) {
-      // Only show on initial connection with songs remaining
+    if (isConnected && radioState && needsDownloading && radioState.totalDownloadedSongs > 0 && !isModalOpen) {
+      // Only show on initial connection with some songs remaining
       setIsModalOpen(true);
     }
   }, [isConnected, radioState?.totalDownloadedSongs]);
@@ -82,6 +82,149 @@ export const RadioPlayer: React.FC<RadioPlayerProps> = ({radioId}) => {
           )}
         </div>
       </div>
+    );
+  }
+
+  // Block access if no songs have been downloaded yet
+  if (isConnected && radioState && radioState.totalDownloadedSongs === 0) {
+    return (
+      <>
+        <div className="w-full max-w-md mx-auto bg-white/90 backdrop-blur-md rounded-xl shadow-xl p-8 flex flex-col items-center justify-center min-h-[300px]">
+          <div className="flex flex-col items-center gap-6">
+            <div className="relative">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-warning-200 to-warning-400"></div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-2xl">⚠️</span>
+              </div>
+            </div>
+            <div className="text-center">
+              <h3 className="text-xl font-bold text-gray-800 mb-2">Songs Need to be Downloaded</h3>
+              <p className="text-gray-600 mb-4">Your radio station cannot function until songs are downloaded.</p>
+              <Button 
+                color="primary" 
+                onPress={() => setIsModalOpen(true)}
+                size="lg"
+              >
+                Show Download Instructions
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Download Warning Modal - accessible from the button above */}
+        <Modal
+          scrollBehavior={"inside"}
+          isOpen={isModalOpen}
+          onOpenChange={setIsModalOpen}
+          placement="center"
+          backdrop="blur"
+          size="4xl"
+          classNames={{
+            base: "max-h-[98vh] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
+            backdrop: "z-[100]",
+            wrapper: "z-[101]"
+          }}
+        >
+          <ModalContent>
+            {(onClose) => (
+              <>
+                <ModalHeader className="flex flex-col gap-1">
+                  Manual Song Download Required
+                </ModalHeader>
+                <ModalBody>
+                  <div className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:justify-between">
+                      <Chip color="warning" variant="flat">
+                        {songsRemaining} songs need downloading
+                      </Chip>
+                    </div>
+                    
+                    <div className="flex justify-between items-center text-sm mt-1">
+                      <span className="text-gray-600">Downloaded songs:</span>
+                      <span className="font-medium">
+                        {radioState?.totalDownloadedSongs || 0}/{radioState?.totalSongs || 0} songs
+                      </span>
+                    </div>
+                    
+                    <Progress
+                      value={radioState ? (radioState.totalDownloadedSongs / radioState.totalSongs) * 100 : 0}
+                      color="primary"
+                      size="md"
+                      className="h-2"
+                      showValueLabel={false}
+                    />
+                    
+                    <p>
+                      Your radio station won't function until songs are downloaded. Due to YouTube restrictions and content policies, our server cannot directly download the songs. You need to run a command in your terminal that will download the songs to your computer and then upload them to our server.
+                    </p>
+                    
+                    <div className="flex flex-col gap-3 mt-2">
+                      <div className="flex flex-col gap-2">
+                        <div className="font-semibold text-sm flex justify-between">
+                          <span>Linux / Mac:</span> 
+                          <Button 
+                            size="sm" 
+                            variant="flat" 
+                            color="primary"
+                            onClick={() => navigator.clipboard.writeText("node <(curl -s https://raw.githubusercontent.com/AspireOne/ai-fm-backend/refs/heads/main/bundled-cli.js)")}
+                          >
+                            Copy
+                          </Button>
+                        </div>
+                        <Card className="bg-gray-50 p-2">
+                          <code className="text-xs break-all">
+                            node &lt;(curl -s https://raw.githubusercontent.com/AspireOne/ai-fm-backend/refs/heads/main/bundled-cli.js)
+                          </code>
+                        </Card>
+                      </div>
+                      
+                      <div className="flex flex-col gap-2">
+                        <div className="font-semibold text-sm flex justify-between">
+                          <span>Windows (PowerShell):</span>
+                          <Button 
+                            size="sm" 
+                            variant="flat" 
+                            color="primary"
+                            onClick={() => navigator.clipboard.writeText("curl -s https://raw.githubusercontent.com/AspireOne/ai-fm-backend/refs/heads/main/bundled-cli.js -o $env:TEMP\\bundled-cli.js; node $env:TEMP\\bundled-cli.js")}
+                          >
+                            Copy
+                          </Button>
+                        </div>
+                        <Card className="bg-gray-50 p-2">
+                          <code className="text-xs break-all">
+                            curl -s https://raw.githubusercontent.com/AspireOne/ai-fm-backend/refs/heads/main/bundled-cli.js -o $env:TEMP\bundled-cli.js; node $env:TEMP\bundled-cli.js
+                          </code>
+                        </Card>
+                      </div>
+                    </div>
+                    
+                    <div className="text-sm bg-gray-50 p-3 rounded-lg">
+                      <p className="font-medium mb-1">Instructions:</p>
+                      <ol className="list-decimal list-inside space-y-1 text-gray-700">
+                        <li>Copy the command for your operating system</li>
+                        <li>Open a terminal/command prompt</li>
+                        <li>Paste and run the command</li>
+                        <li>Select this radio station when prompted</li>
+                        <li>Wait for downloads to complete</li>
+                        <li>Refresh this page when done</li>
+                      </ol>
+                    </div>
+                    
+                    <p className="text-xs text-gray-500">
+                      After running the command, return to this page and refresh once the downloads are complete.
+                    </p>
+                  </div>
+                </ModalBody>
+                <ModalFooter>
+                  <Button color="primary" onPress={onClose}>
+                    I understand
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
+          </ModalContent>
+        </Modal>
+      </>
     );
   }
 
