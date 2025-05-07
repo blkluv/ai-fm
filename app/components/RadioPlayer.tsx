@@ -185,7 +185,7 @@ export const RadioPlayer: React.FC<RadioPlayerProps> = ({radioId}) => {
                             size="sm" 
                             variant="flat" 
                             color="primary"
-                            onPresss={() => navigator.clipboard.writeText("node <(curl -s https://raw.githubusercontent.com/AspireOne/ai-fm-backend/refs/heads/main/bundled-cli.js)")}
+                            onPress={() => navigator.clipboard.writeText("node <(curl -s https://raw.githubusercontent.com/AspireOne/ai-fm-backend/refs/heads/main/bundled-cli.js)")}
                           >
                             Copy
                           </Button>
